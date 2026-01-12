@@ -427,9 +427,11 @@ const ChatPage = () => {
 
                   {/* TIME */}
                   <p className="text-[10px] text-right opacity-80 mt-1">
-                    {new Date(message.timestamp).toLocaleTimeString([], {
+                    {new Date(message.timestamp).toLocaleTimeString("en-IN", {
+                      timeZone: "Asia/Kolkata",
                       hour: "2-digit",
                       minute: "2-digit",
+                      hour12: true,
                     })}
                   </p>
                 </div>
