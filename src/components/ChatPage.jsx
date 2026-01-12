@@ -4,8 +4,7 @@ import { MdAttachment } from "react-icons/md";
 import useChatContext from "../context/ChatContext";
 import { useNavigate } from "react-router";
 import { baseUrl } from "../config/AxiosHelper";
-import SockJS from "sockjs-client";
-import { Client, Stomp } from "@stomp/stompjs";
+
 import toast from "react-hot-toast";
 import { getMessages } from "../services/RoomService";
 import EmojiPicker from "emoji-picker-react";
@@ -161,24 +160,53 @@ const ChatPage = () => {
     loadMessages();
   }, [roomId]);
   //stompClient ko init karne and subscribe karne honge
+  // useEffect(() => {
+  //   if (!connected || stompClient) return;
+
+  //   const sock = new SockJS(`${baseUrl}/chat`);
+  //   const client = Stomp.over(sock);
+
+  //   client.connect({}, () => {
+  //     setStompClient(client);
+  //     toast.success("connected");
+
+  //     client.subscribe(`/topic/room/${roomId}`, (message) => {
+  //       const newMessage = JSON.parse(message.body);
+  //       setMessages((prev) => [...prev, newMessage]);
+  //     });
+  //   });
+
+  //   return () => {
+  //     if (client.connected) {
+  //       client.disconnect();
+  //     }
+  //   };
+  // }, [connected, roomId]);
   useEffect(() => {
     if (!connected || stompClient) return;
 
-    const sock = new SockJS(`${baseUrl}/chat`);
-    const client = Stomp.over(sock);
+    let client;
 
-    client.connect({}, () => {
-      setStompClient(client);
-      toast.success("connected");
+    (async () => {
+      const SockJS = (await import("sockjs-client")).default;
+      const Stomp = (await import("@stomp/stompjs")).Stomp;
 
-      client.subscribe(`/topic/room/${roomId}`, (message) => {
-        const newMessage = JSON.parse(message.body);
-        setMessages((prev) => [...prev, newMessage]);
+      const sock = new SockJS(`${baseUrl}/chat`);
+      client = Stomp.over(sock);
+
+      client.connect({}, () => {
+        setStompClient(client);
+        toast.success("connected");
+
+        client.subscribe(`/topic/room/${roomId}`, (message) => {
+          const newMessage = JSON.parse(message.body);
+          setMessages((prev) => [...prev, newMessage]);
+        });
       });
-    });
+    })();
 
     return () => {
-      if (client.connected) {
+      if (client && client.connected) {
         client.disconnect();
       }
     };
