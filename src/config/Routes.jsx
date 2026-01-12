@@ -1,6 +1,6 @@
 import React from "react";
 import { Route, Routes } from "react-router";
-import ChatPage from "../components/chatPage";
+import ChatPage from "../components/ChatPage";
 import App from "../App";
 
 const AppRoutes = () => {
