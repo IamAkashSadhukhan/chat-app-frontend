@@ -73,29 +73,32 @@ const ChatPage = () => {
   };
 
   const formatChatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    const today = new Date();
+  const date = new Date(dateStr);
+  const today = new Date();
 
-    const isSameDay = (d1, d2) =>
-      d1.getDate() === d2.getDate() &&
-      d1.getMonth() === d2.getMonth() &&
-      d1.getFullYear() === d2.getFullYear();
+  // normalize (important)
+  const normalize = (d) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
-    const yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
+  const msgDate = normalize(date);
+  const todayDate = normalize(today);
 
-    if (isSameDay(date, today)) return "Today";
-    if (isSameDay(date, yesterday)) return "Yesterday";
+  const yesterdayDate = new Date(todayDate);
+  yesterdayDate.setDate(todayDate.getDate() - 1);
 
-    const diffYear = date.getFullYear() !== today.getFullYear();
+  if (msgDate.getTime() === todayDate.getTime()) return "Today";
+  if (msgDate.getTime() === yesterdayDate.getTime()) return "Yesterday";
 
-    return date.toLocaleDateString("en-IN", {
-      weekday: diffYear ? undefined : "long",
-      day: "2-digit",
-      month: "short",
-      year: diffYear ? "numeric" : undefined,
-    });
-  };
+  const diffYear = msgDate.getFullYear() !== todayDate.getFullYear();
+
+  return msgDate.toLocaleDateString("en-IN", {
+    weekday: diffYear ? undefined : "long",
+    day: "2-digit",
+    month: "short",
+    year: diffYear ? "numeric" : undefined,
+  });
+};
+
   const senderColors = [
     "bg-blue-500",
     "bg-purple-500",
